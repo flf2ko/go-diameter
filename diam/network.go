@@ -5,6 +5,7 @@ import (
 	"net"
 	"time"
 
+	conntrack "github.com/eaglerayp/go-conntrack"
 	"github.com/ishidawataru/sctp"
 )
 
@@ -102,7 +103,10 @@ func getDialer(network string, timeout time.Duration, laddr net.Addr) Dialer {
 		la, _ := laddr.(*sctp.SCTPAddr)
 		return sctpSingleStreamDialer{LocalAddr: la}
 	default:
-		return &net.Dialer{Timeout: timeout, LocalAddr: laddr}
+		return conntrack.NewDialer(
+			conntrack.DialWithDialer(&net.Dialer{Timeout: timeout, LocalAddr: laddr}),
+			conntrack.DialWithName("ocs_diameter"),
+		)
 	}
 }
 
@@ -113,7 +117,10 @@ func getMultistreamDialer(network string, timeout time.Duration, laddr net.Addr)
 		la, _ := laddr.(*sctp.SCTPAddr)
 		return sctpDialer{LocalAddr: la}
 	default:
-		return &net.Dialer{Timeout: timeout, LocalAddr: laddr}
+		return conntrack.NewDialer(
+			conntrack.DialWithDialer(&net.Dialer{Timeout: timeout, LocalAddr: laddr}),
+			conntrack.DialWithName("ocs_diameter"),
+		)
 	}
 }
 
